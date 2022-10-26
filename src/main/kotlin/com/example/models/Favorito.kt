@@ -47,16 +47,29 @@ class DaoFavoritoImpl : DAOFavorito {
     }
 
     override suspend fun addNewFavoritos(favorito: Favorito, owner: UUID): Favorito? = dbQuery {
-        val insert = Favoritos.insert {
-            it[alojamientoId] = favorito.alojamientoId
-            it[usuarioId] = favorito.usuarioId
-            it[Favoritos.owner] = owner
+        val existingFavorito =
+            Favoritos.select { (Favoritos.owner eq owner) and (Favoritos.alojamientoId eq favorito.alojamientoId) and (Favoritos.usuarioId eq favorito.usuarioId) }
+                .map(::resultRowToFavorito).firstOrNull()
+        if (existingFavorito == null) {
+            val insert = Favoritos.insert {
+                it[alojamientoId] = favorito.alojamientoId
+                it[usuarioId] = favorito.usuarioId
+                it[Favoritos.owner] = owner
+            }
+            insert.resultedValues?.singleOrNull()?.let(::resultRowToFavorito)
+        } else {
+            existingFavorito
         }
-        insert.resultedValues?.singleOrNull()?.let(::resultRowToFavorito)
     }
 
     override suspend fun deleteFavoritos(alojamientoId: UUID, owner: UUID): Boolean = dbQuery {
-        Favoritos.deleteWhere { (Favoritos.alojamientoId eq alojamientoId) and (Favoritos.owner eq owner) } > 0
+        val favorito = Favoritos.select { Favoritos.alojamientoId eq alojamientoId }.firstOrNull()
+        if (favorito != null && favorito[Favoritos.owner] == owner) {
+            val id: Int = favorito[Favoritos.id]
+            Favoritos.deleteWhere { Favoritos.id eq id } > 0
+        } else {
+            false
+        }
     }
 
 }

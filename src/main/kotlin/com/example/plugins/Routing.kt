@@ -3,6 +3,8 @@ package com.example.plugins
 import com.example.ServiceLocator
 import com.example.models.DAOFavorito
 import com.example.models.DAOReserva
+import com.example.models.Favorito
+import com.example.models.Reserva
 import com.example.sha256
 import io.ktor.server.routing.*
 import io.ktor.http.*
@@ -71,7 +73,29 @@ fun Application.configureRouting() {
             }
             post("/favorito") {
                 val owner = call.getAuthenticatedUserGuid()
-
+                val favorito: Favorito = call.receive()
+                val repo = ServiceLocator.getFavoritoRepository()
+                val created = repo.addNewFavoritos(favorito, owner)
+                if (created != null) {
+                    call.respond(created)
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "No pudimos crear tu favorito :c")
+                }
+            }
+            delete("/favorito") {
+                val owner = call.getAuthenticatedUserGuid()
+                val favorito: String? = call.request.queryParameters["alojamientoId"]
+                if (favorito == null) {
+                    call.respond(HttpStatusCode.BadRequest, "No se encontro el query-parameter alojamientoId")
+                } else {
+                    val repo = ServiceLocator.getFavoritoRepository()
+                    val deleted = repo.deleteFavoritos(UUID.fromString(favorito), owner)
+                    if (deleted) {
+                        call.respond(HttpStatusCode.OK, "Tu favorito ha sido elimidado")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "No eliminar tu favorito, asegurate que exista")
+                    }
+                }
             }
             get("/reserva") {
                 val user = context.request.queryParameters["usuarioId"]?.let { UUID.fromString(it) }
@@ -86,7 +110,29 @@ fun Application.configureRouting() {
             }
             post("/reserva") {
                 val owner = call.getAuthenticatedUserGuid()
-
+                val reserva: Reserva = call.receive()
+                val repo = ServiceLocator.getReservaRepository()
+                val created = repo.addNewReserva(reserva, owner)
+                if (created != null) {
+                    call.respond(created)
+                } else {
+                    call.respond(HttpStatusCode.InternalServerError, "No pudimos crear tu reserva :c")
+                }
+            }
+            delete("/reserva") {
+                val owner = call.getAuthenticatedUserGuid()
+                val reserva: String? = call.request.queryParameters["alojamientoId"]
+                if (reserva == null) {
+                    call.respond(HttpStatusCode.BadRequest, "No se encontro el query-parameter alojamientoId")
+                } else {
+                    val repo = ServiceLocator.getReservaRepository()
+                    val deleted = repo.deleteReserva(UUID.fromString(reserva), owner)
+                    if (deleted) {
+                        call.respond(HttpStatusCode.OK, "Tu reserva ha sido elimidado")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "No eliminar tu reserva, asegurate que exista")
+                    }
+                }
             }
         }
     }

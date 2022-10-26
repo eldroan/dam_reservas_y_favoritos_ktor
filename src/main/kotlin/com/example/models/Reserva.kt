@@ -70,17 +70,30 @@ class DAOReservaImpl : DAOReserva {
     }
 
     override suspend fun addNewReserva(reserva: Reserva, owner: UUID): Reserva? = dbQuery {
-        val insert = Reservas.insert {
-            it[alojamientoId] = reserva.alojamientoId
-            it[usuarioId] = reserva.usuarioId
-            it[fechaIngreso] = reserva.fechaIngreso.toString()
-            it[fechaSalida] = reserva.fechaSalida.toString()
-            it[ownerId] = owner
+        val existingReserva =
+            Reservas.select { (Reservas.ownerId eq owner) and (Reservas.alojamientoId eq reserva.alojamientoId) and (Reservas.usuarioId eq reserva.usuarioId) }
+                .map(::resultRowToReserva).firstOrNull()
+        if (existingReserva != null) {
+            existingReserva
+        } else {
+            val insert = Reservas.insert {
+                it[alojamientoId] = reserva.alojamientoId
+                it[usuarioId] = reserva.usuarioId
+                it[fechaIngreso] = reserva.fechaIngreso.toString()
+                it[fechaSalida] = reserva.fechaSalida.toString()
+                it[ownerId] = owner
+            }
+            insert.resultedValues?.singleOrNull()?.let(::resultRowToReserva)
         }
-        insert.resultedValues?.singleOrNull()?.let(::resultRowToReserva)
     }
 
     override suspend fun deleteReserva(alojamientoId: UUID, owner: UUID): Boolean = dbQuery {
-        Reservas.deleteWhere { (Reservas.alojamientoId eq Reservas.alojamientoId) and (Reservas.ownerId eq owner) } > 0
+        val reserva = Reservas.select { Reservas.alojamientoId eq alojamientoId }.firstOrNull()
+        if (reserva != null && reserva[Reservas.ownerId] == owner) {
+            val id: Int = reserva[Reservas.id]
+            Reservas.deleteWhere { Reservas.id eq id } > 0
+        } else {
+            false
+        }
     }
 }
