@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  mi-proyecto-mysql:
+  dam-reservas-y-favoritos-database:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password # Para que no nos obligue a resetear la pass
     restart: always
