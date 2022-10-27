@@ -12,10 +12,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 
 fun Application.initDB() {
-    val host = environment.config.propertyOrNull("ktor.deployment.dbhost")?.getString()
-    val port = environment.config.propertyOrNull("ktor.deployment.dbport")?.getString()
-    val name = environment.config.propertyOrNull("ktor.deployment.dbname")?.getString()
-    val pass = environment.config.propertyOrNull("ktor.deployment.dbpass")?.getString()
+    val host = environment.config.propertyOrNull("ktor.deployment.dbhost")!!.getString()
+    val port = environment.config.propertyOrNull("ktor.deployment.dbport")!!.getString()
+    val name = environment.config.propertyOrNull("ktor.deployment.dbname")!!.getString()
+    val pass = environment.config.propertyOrNull("ktor.deployment.dbpass")!!.getString()
     val driverClassName = "com.mysql.jdbc.Driver"
     val jdbcURL = "jdbc:mysql://$host:$port/$name?useSSL=false"
     val database= Database.connect(jdbcURL, driverClassName,"root",pass)
