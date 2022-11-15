@@ -97,8 +97,8 @@ Las respuestas de esta api estarán en formato JSON por lo cual tendrian la sigu
 {
     "alojamientoId": "a581defa-6e19-4f03-b572-7e59d26007fe",
     "usuarioId": "0000defa-0000-4f03-b572-7e59d26007fe",
-    "fechaIngreso": "2022-10-28T21:15:20+0000", // Este formato es ISO-8601	y es común de encontrar en muchas APIs
-    "fechaSalida": "2022-12-28T21:15:20+0000"
+    "fechaIngreso": "2022-10-28T21:15:20", // Este formato es ISO-8601	y es común de encontrar en muchas APIs
+    "fechaSalida": "2022-12-28T21:15:20"
 }
 ```
 ```json5
