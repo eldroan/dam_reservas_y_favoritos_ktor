@@ -36,6 +36,12 @@ curl -L -X POST 'https://dam-recordatorio-favoritos-api.duckdns.org/usuario' -H 
 }'
 ```
 
+Una vez creado nuestro usuario podemos comprobar su funcionamiento con el siguiente curl:
+```bash
+curl -L -X GET 'https://dam-recordatorio-favoritos-api.duckdns.org/auth-ping' -H 'Authorization: Basic MiUsuarioYPassEnBase64'
+```
+> Para la prueba pueden generar el valor del header desde [este link](https://www.blitter.se/utils/basic-authentication-header-generator/)
+
 ## Como usar una versión local de la api?
 
 > Esto no es necesario, pueden utilizar la versión desplegada que se menciona anteriormente. 
@@ -85,7 +91,7 @@ class Favorito {
 }
 ```
 
-Las respuestas de esta api estarán en formato JSON por lo cual las respuestas de la api para cada una de estas entidades tendrian la siguiente estructura
+Las respuestas de esta api estarán en formato JSON por lo cual tendrian la siguiente estructura
 ```json5
 // Reserva
 {
@@ -103,10 +109,74 @@ Las respuestas de esta api estarán en formato JSON por lo cual las respuestas d
 }
 ```
 
-### Operaciones soportadas en Reservas
+### Operaciones soportadas en Reservas - PATH: `/reserva`
 
-// TODO
+#### [GET] - [Con Autenticación BASIC] - Listar Reservas
+Retorna el listado de reservas almacenadas por el cliente autenticado.
+> Opcionalmente puede recibir el queryparam `usuarioId` para filtrar resultados de un mismo usuario.
 
-### Operaciones soportadas en Favoritos
+Curl de ejemplo sin queryparam:
+```bash
+curl -L -X GET 'https://dam-recordatorio-favoritos-api.duckdns.org/reserva' -H 'Authorization: Basic MiUsuarioYPassEnBase64'
+```
+Curl de ejemplo con queryparam:
+```bash
+curl -L -X GET 'https://dam-recordatorio-favoritos-api.duckdns.org/reserva?usuarioId=0000defa-0000-4f03-b572-7e59d26007fe' -H 'Authorization: Basic MiUsuarioYPassEnBase64'
+```
+#### [POST] - [Con Autenticación BASIC] - Crear Reserva
+Espera recibir una reserva en el body de la petición y en caso de éxito retorna un status code `200` con el objeto 
+creado. En caso de fallar retorna un mensaje de error con un status code `500`.
 
-// TODO
+Curl de ejemplo:
+```bash
+curl -L -X POST 'https://dam-recordatorio-favoritos-api.duckdns.org/reserva' -H 'Authorization: Basic MiUsuarioYPassEnBase64' -H 'Content-Type: application/json' --data-raw '{
+    "alojamientoId": "a581defa-6e19-4f03-b572-7e59d26007fe",
+    "usuarioId": "0000defa-0000-4f03-b572-7e59d26007fe",
+    "fechaIngreso": "2007-12-31T23:59:01",
+    "fechaSalida": "2007-12-31T23:59:01"
+}'
+```
+
+#### [DELETE] - [Con Autenticación BASIC] - Eliminar Reserva
+Espera recibir el queryparam `alojamientoId` con el valor del id del alojamiento que se desea borrar. 
+En caso de éxito retorna un status code `200` con el objeto creado. En caso de fallar, o no encontrar el 
+queryparam `alojamientoId`, retorna un mensaje de error con un status code `400`.
+
+```bash
+curl -L -X DELETE 'https://dam-recordatorio-favoritos-api.duckdns.org/reserva?alojamientoId=a581defa-6e19-4f03-b572-7e59d26007fe' -H 'Authorization: Basic MiUsuarioYPassEnBase64' --data-raw ''
+```
+
+### Operaciones soportadas en Favoritos - PATH: `/favorito`
+
+#### [GET] - [Con Autenticación BASIC] - Listar Favoritos
+Retorna el listado de favoritos almacenadas por el cliente autenticado.
+> Opcionalmente puede recibir el queryparam `usuarioId` para filtrar resultados de un mismo usuario.
+
+Curl de ejemplo sin queryparam:
+```bash
+curl -L -X GET 'https://dam-recordatorio-favoritos-api.duckdns.org/favorito' -H 'Authorization: Basic MiUsuarioYPassEnBase64'
+```
+Curl de ejemplo con queryparam:
+```bash
+curl -L -X GET 'https://dam-recordatorio-favoritos-api.duckdns.org/favorito?usuarioId=0000defa-0000-4f03-b572-7e59d26007fe' -H 'Authorization: Basic MiUsuarioYPassEnBase64'
+```
+
+#### [POST] - [Con Autenticación BASIC] - Crear Favorito
+Espera recibir una reserva en el body de la petición y en caso de éxito retorna un status code `200` con el objeto
+creado. En caso de fallar retorna un mensaje de error con un status code `500`.
+
+```bash
+curl -L -X POST 'https://dam-recordatorio-favoritos-api.duckdns.org/favorito' -H 'Authorization: Basic MiUsuarioYPassEnBase64' -H 'Content-Type: application/json' --data-raw '{
+    "alojamientoId": "a581defa-6e19-4f03-b572-7e59d26007fe",
+    "usuarioId": "0000defa-0000-4f03-b572-7e59d26007fe"
+}'
+```
+
+#### [DELETE] - [Con Autenticación BASIC] - Eliminar Favorito
+Espera recibir el queryparam `alojamientoId` con el valor del id del alojamiento que se desea borrar.
+En caso de éxito retorna un status code `200` con el objeto creado. En caso de fallar, o no encontrar el
+queryparam `alojamientoId`, retorna un mensaje de error con un status code `400`.
+
+```bash
+curl -L -X DELETE 'https://dam-recordatorio-favoritos-api.duckdns.org/favorito?alojamientoId=a581defa-6e19-4f03-b572-7e59d26007fe' -H 'Authorization: Basic MiUsuarioYPassEnBase64' --data-raw ''
+```
